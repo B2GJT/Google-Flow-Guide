@@ -1,0 +1,805 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Flow 사용법 가이드</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --text: #111111;
+      --body: #374151;
+      --muted: #6B7280;
+      --border: #E5E7EB;
+      --primary: #1a73e8;
+      --primary-dark: #1557b0;
+      --tint: #E8F0FE;
+      --sidebar-width: 260px;
+      --navbar-height: 56px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: var(--body);
+      background: #fff;
+      font-size: 17px;
+      line-height: 1.75;
+    }
+
+    /* ─── Navbar ─── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--navbar-height);
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 100;
+      gap: 12px;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .navbar-brand-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .badge-blue {
+      background: var(--tint);
+      color: var(--primary-dark);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .navbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+    }
+
+    .navbar-title {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ─── Layout ─── */
+    .layout {
+      display: flex;
+      margin-top: var(--navbar-height);
+    }
+
+    /* ─── Sidebar ─── */
+    .sidebar {
+      width: var(--sidebar-width);
+      flex-shrink: 0;
+      position: sticky;
+      top: var(--navbar-height);
+      align-self: flex-start;
+      height: calc(100vh - var(--navbar-height));
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      padding: 28px 0 40px;
+      background: #fff;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 3px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .sidebar-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0 16px 10px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      font-size: 13.5px;
+      color: var(--body);
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 1px 8px;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .sidebar-link:hover { background: #F9FAFB; color: var(--text); }
+
+    .sidebar-link.active {
+      background: var(--tint);
+      color: var(--primary-dark);
+      font-weight: 500;
+    }
+
+    .sidebar-link .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: background 0.12s;
+    }
+
+    .sidebar-link.active .dot { background: var(--primary); }
+
+    /* ─── Main ─── */
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 44px 60px 100px;
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      padding-bottom: 36px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--tint);
+      color: var(--primary-dark);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 14px;
+      letter-spacing: -0.3px;
+    }
+
+    .hero-desc {
+      font-size: 17px;
+      color: var(--body);
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+
+    /* ─── 전체 흐름 ─── */
+    .flow-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 28px 0 0;
+    }
+
+    .flow-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #F9FAFB;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--body);
+      font-weight: 500;
+    }
+
+    .flow-item .flow-num {
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .flow-arrow {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 0 2px;
+    }
+
+    /* ─── Sections ─── */
+    .section {
+      padding: 40px 0;
+      border-bottom: 1px solid var(--border);
+      scroll-margin-top: calc(var(--navbar-height) + 20px);
+    }
+
+    .section:last-child { border-bottom: none; }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.2px;
+    }
+
+    .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 32px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 16px;
+      padding: 0 8px;
+      flex-shrink: 0;
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 24px 0 10px;
+    }
+
+    p { margin-bottom: 12px; }
+    p:last-child { margin-bottom: 0; }
+
+    ul, ol { padding-left: 22px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+
+    strong { color: var(--text); font-weight: 600; }
+
+    a { color: var(--primary-dark); text-decoration: underline; text-underline-offset: 2px; }
+
+    /* ─── Callouts ─── */
+    .callout {
+      background: var(--tint);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 6px 6px 0;
+      padding: 16px 20px;
+      margin: 20px 0;
+      color: #1e3a5f;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .callout.warn {
+      background: #FFFBEB;
+      border-left-color: #F59E0B;
+      color: #92400E;
+    }
+
+    .callout.info {
+      background: #F0FDF4;
+      border-left-color: #22C55E;
+      color: #14532D;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    /* ─── Steps ─── */
+    .steps { margin: 16px 0; }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .step-n {
+      width: 28px;
+      height: 28px;
+      background: var(--tint);
+      color: var(--primary-dark);
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-text { font-size: 16.5px; line-height: 1.7; }
+
+    .step-text ul { margin-top: 8px; }
+
+    /* ─── 경로 표시 ─── */
+    .path-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #F3F4F6;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 18px;
+      font-size: 15px;
+      color: var(--body);
+      margin: 14px 0 20px;
+      flex-wrap: wrap;
+    }
+
+    .path-bar span { font-weight: 600; color: var(--text); }
+    .path-bar .arr { color: var(--muted); font-size: 12px; font-weight: 400; }
+
+    /* ─── Images ─── */
+    .img-wrap {
+      margin: 20px 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .img-wrap img {
+      width: 100%;
+      display: block;
+    }
+
+    .img-placeholder {
+      width: 100%;
+      min-height: 220px;
+      background: #F9FAFB;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13.5px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .img-placeholder-icon {
+      font-size: 28px;
+      opacity: 0.4;
+    }
+
+    .img-caption {
+      padding: 10px 16px;
+      background: #F9FAFB;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* ─── 크레딧 그리드 ─── */
+    .credit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 16px 0 20px;
+    }
+
+    .credit-item {
+      background: #F9FAFB;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+
+    .credit-item .credit-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
+
+    .credit-item .credit-amount {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .credit-item .credit-desc {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ─── 푸터 ─── */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background: #fff;
+      padding: 28px 40px;
+      text-align: center;
+    }
+
+    .footer-company {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .footer-info {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .footer-info a { color: var(--muted); text-decoration: none; }
+    .footer-info a:hover { color: var(--primary-dark); }
+
+    .footer-copy {
+      font-size: 12px;
+      color: #9CA3AF;
+      margin-top: 10px;
+    }
+
+    /* ─── 반응형 ─── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { padding: 24px 18px 80px; }
+      .hero h1 { font-size: 26px; }
+      .hero-desc { font-size: 15px; }
+      h2 { font-size: 20px; }
+      h3 { font-size: 15px; }
+      body { font-size: 15px; }
+      .step-text { font-size: 14.5px; }
+      .callout { font-size: 14px; padding: 13px 15px; }
+      .path-bar { font-size: 13px; padding: 8px 12px; }
+      .img-caption { font-size: 12.5px; }
+      .flow-bar { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .flow-arrow { transform: rotate(90deg); padding-left: 14px; }
+      .navbar-title { display: none; }
+      .credit-grid { grid-template-columns: 1fr; }
+      .site-footer { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="#">
+      <span class="navbar-brand-name">패스트캠퍼스</span>
+      <span class="badge-blue">수강생 안내</span>
+    </a>
+    <div class="navbar-sep"></div>
+    <span class="navbar-title">Google Flow 사용법 가이드</span>
+  </nav>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-group-label">목차</div>
+      <a class="sidebar-link active" href="#s1">
+        <span class="dot"></span> 1. 로그인 하기
+      </a>
+      <a class="sidebar-link" href="#s2">
+        <span class="dot"></span> 2. 메뉴 소개
+      </a>
+      <a class="sidebar-link" href="#s3">
+        <span class="dot"></span> 3. 이미지 생성
+      </a>
+      <a class="sidebar-link" href="#s4">
+        <span class="dot"></span> 4-1. 영상 생성 (에셋)
+      </a>
+      <a class="sidebar-link" href="#s5">
+        <span class="dot"></span> 4-2. 영상 생성 (프레임)
+      </a>
+      <a class="sidebar-link" href="#s6">
+        <span class="dot"></span> 5. 확인 및 수정
+      </a>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-badge">패스트캠퍼스 × 국비지원</div>
+        <h1>Google Flow<br>사용법 가이드</h1>
+        <p class="hero-desc">
+          Google ImageFX / Whisk가 <strong>Google Flow</strong>로 통합됨에 따라,<br>
+          Google Flow 인터페이스 화면 및 사용법을 안내드립니다.
+        </p>
+
+        <div class="flow-bar">
+          <div class="flow-item"><span class="flow-num">1</span> 로그인</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-item"><span class="flow-num">2</span> 메뉴 소개</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-item"><span class="flow-num">3</span> 이미지 생성</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-item"><span class="flow-num">4</span> 영상 생성</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-item"><span class="flow-num">5</span> 확인·수정</div>
+        </div>
+      </div>
+
+      <!-- 공지 callout -->
+      <div class="callout" style="margin-top: 32px;">
+        <div class="callout-title">🧭 수강생 여러분께</div>
+        안녕하세요. 패스트캠퍼스 국비지원 입니다.<br>
+        <strong>3차시. Gemini와 Google AI 기반 이미지 영상 생성 — [Chapter 2. Google Labs 제대로 쓰기]</strong> 클립의 사용 툴 업데이트에 따른 추가 강의 자료이오니 꼭 확인해주세요.
+      </div>
+
+      <div class="callout warn">
+        📢 설정법 가이드는 <strong>Google Flow (26년 5월 19일)</strong> 기준으로 작성되었습니다.
+      </div>
+
+      <!-- 크레딧 안내 -->
+      <div class="callout info">
+        <div class="callout-title">💡 Google Flow 크레딧 안내</div>
+        Google Flow 바로가기 : <a href="https://labs.google/fx/ko/tools/flow" target="_blank">https://labs.google/fx/ko/tools/flow</a><br><br>
+        ✅ <strong>Google Flow 무료 사용 시 1일 50 크레딧이 제공</strong>되며, <strong>영상 제작 환경에 따라 최소 10 이상의 크레딧이 사용</strong>됩니다.<br>
+        ✅ <strong>Google Flow(플로우)</strong>에서 한 번에 생성할 수 있는 <strong>영상의 기본 길이</strong>는 <strong>최대 8초</strong>입니다.
+      </div>
+
+      <div class="credit-grid">
+        <div class="credit-item">
+          <div class="credit-name">무료 버전</div>
+          <div class="credit-amount">50 크레딧 / 일</div>
+          <div class="credit-desc">매일 자정 초기화</div>
+        </div>
+        <div class="credit-item">
+          <div class="credit-name">Google AI Plus</div>
+          <div class="credit-amount">200 크레딧 / 월</div>
+          <div class="credit-desc">AI 크레딧 월 제공</div>
+        </div>
+        <div class="credit-item">
+          <div class="credit-name">Google AI Pro</div>
+          <div class="credit-amount">1,000 크레딧 / 월</div>
+          <div class="credit-desc">AI 크레딧 월 제공</div>
+        </div>
+      </div>
+
+      <p style="font-size: 14px; color: var(--muted); margin-bottom: 32px;">
+        크레딧 관련 자세한 내용은 <a href="https://support.google.com/googleone/answer/16287445" target="_blank">Google 공식 안내 페이지</a>를 참고해주세요.
+      </p>
+
+      <!-- Section 1 -->
+      <section class="section" id="s1">
+        <h2><span class="section-num">1</span> Google Flow 로그인 하기</h2>
+
+        <div class="path-bar">
+          <a href="https://labs.google/fx/ko/tools/flow" target="_blank" style="font-weight:600;">labs.google/fx/ko/tools/flow</a>
+          <span class="arr">→</span>
+          <span>[Create with Flow] 버튼 클릭</span>
+          <span class="arr">→</span>
+          <span>Google 계정 로그인</span>
+        </div>
+
+        <div class="img-wrap">
+          <img src="images01_login.png" alt="Google Flow 초기 화면">
+          <div class="img-caption">Google Flow 초기 접속 화면 — 중앙의 [Create with Flow] 버튼 클릭 후 Google 계정으로 로그인</div>
+        </div>
+      </section>
+
+      <!-- Section 2 -->
+      <section class="section" id="s2">
+        <h2><span class="section-num">2</span> Google Flow 메뉴 소개</h2>
+
+        <div class="img-wrap">
+          <img src="images02_menu.png" alt="Google Flow 메인 화면 메뉴 구성">
+          <div class="img-caption">Google Flow 메인 화면 — 주요 메뉴 구성</div>
+        </div>
+
+        <div class="callout">
+          Google Flow는 <strong>'프로젝트' 기반</strong>으로 생성 활동이 저장됩니다.<br>
+          작업했던 이미지/영상 확인이 필요한 경우, 왼편 상단의 <strong>[←] 버튼</strong>으로 프로젝트를 확인해주세요.
+        </div>
+
+        <ul>
+          <li><strong>① 프로젝트 설정</strong> : 프로젝트 이름, 보관 항목, 프로젝트 삭제 설정</li>
+          <li><strong>② 프로젝트 내역 확인 메뉴</strong> : 전체 보기(그리드) / 이미지 / 영상 / 업로드 파일 확인</li>
+          <li><strong>③ 더보기</strong> : 프로젝트 전체 다운로드, 도움말 및 고객센터 바로가기 등</li>
+          <li><strong>④ 이미지/영상 생성 프롬프트</strong> : 이미지/영상 생성을 위한 프롬프트 입력 메뉴</li>
+        </ul>
+      </section>
+
+      <!-- Section 3 -->
+      <section class="section" id="s3">
+        <h2><span class="section-num">3</span> Google Flow 에서 이미지 생성하기</h2>
+
+        <div class="callout">
+          Google Flow에서는 <strong>희망하는 이미지 스타일에 대해 '프롬프트'에 모두 입력하여 진행됩니다.</strong><br>
+          이미지 스타일, 무드 등을 모두 '프롬프트'에 입력해주세요.
+        </div>
+
+        <div class="img-wrap">
+          <img src="images03_image_gen.png" alt="이미지 생성 환경 설정 화면">
+          <div class="img-caption">프롬프트 하단 [생성 환경 설정] 클릭 → [이미지] 선택 후 비율 및 수량 설정</div>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-text">프롬프트 하단 <strong>① [생성 환경 설정]</strong> 버튼을 클릭합니다.</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-text">
+              <strong>② [이미지]</strong> 선택 후 이미지 비율, 생성할 이미지 수량을 선택합니다.
+              <ul>
+                <li>생성할 이미지의 모델을 선택/변경할 수 있습니다.</li>
+                <li>'생성 시 [ ] 크레딧이 사용됩니다' 문구로 소진되는 크레딧을 확인할 수 있습니다.</li>
+                <li>이미지 수정이 필요한 경우, 프롬프트 왼편의 <strong>[+] 버튼</strong>을 통해 이미지를 업로드하거나 기존 업로드한 이미지(에셋)를 선택할 수 있습니다.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          이미지 수정 시, 프롬프트에 <strong>'지금 이미지에서 어떤 걸 수정해야 하는지'</strong> 명확하게 지시해주세요.
+        </div>
+
+        <div class="img-wrap">
+          <img src="images03b_image_edit.png" alt="이미지 수정 - [+] 버튼 업로드 화면">
+          <div class="img-caption">프롬프트 왼편 [+] 버튼 → 이미지 업로드 또는 기존 에셋 선택 → 수정 내용 프롬프트 입력</div>
+        </div>
+      </section>
+
+      <!-- Section 4-1 -->
+      <section class="section" id="s4">
+        <h2><span class="section-num">4-1</span> 영상 생성하기 — 이미지(에셋)를 동영상으로</h2>
+
+        <div class="img-wrap">
+          <img src="images04a_video_asset_setting.png" alt="동영상(에셋) 생성 환경 설정 화면">
+          <div class="img-caption">생성 환경 설정 → [동영상] → [에셋] 선택 후 영상 비율 및 수량 설정</div>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-text">프롬프트 하단 <strong>① [생성 환경 설정]</strong> 버튼을 클릭합니다.</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-text">
+              <strong>② [동영상] → [에셋]</strong> 선택 후 영상 비율, 생성할 영상 수량을 선택합니다.
+              <ul>
+                <li>생성할 영상의 모델을 선택/변경할 수 있습니다.</li>
+                <li>'생성 시 [ ] 크레딧이 사용됩니다' 문구로 소진되는 크레딧을 확인할 수 있습니다.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-text">
+              프롬프트 왼편 하단 <strong>③ [+] 버튼</strong>을 클릭하여 영상으로 만들 이미지(에셋)를 선택 또는 업로드한 후 <strong>'프롬프트'</strong>를 입력합니다.
+            </div>
+          </div>
+        </div>
+
+        <div class="img-wrap">
+          <img src="images04a_video_asset_prompt.png" alt="에셋 선택 후 프롬프트 입력 화면">
+          <div class="img-caption">프롬프트 왼편 [+] 버튼 → 이미지(에셋) 선택 또는 업로드 → 프롬프트 입력</div>
+        </div>
+      </section>
+
+      <!-- Section 4-2 -->
+      <section class="section" id="s5">
+        <h2><span class="section-num">4-2</span> 영상 생성하기 — 프레임을 동영상으로</h2>
+
+        <div class="img-wrap">
+          <img src="images04b_video_frame_setting.png" alt="동영상(프레임) 생성 환경 설정 화면">
+          <div class="img-caption">생성 환경 설정 → [동영상] → [프레임] 선택 후 영상 비율 및 수량 설정</div>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-text">프롬프트 하단 <strong>① [생성 환경 설정]</strong> 버튼을 클릭합니다.</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-text">
+              <strong>② [동영상] → [프레임]</strong> 선택 후 영상 비율, 생성할 영상 수량을 선택합니다.
+              <ul>
+                <li>생성할 영상의 모델을 선택/변경할 수 있습니다.</li>
+                <li>'생성 시 [ ] 크레딧이 사용됩니다' 문구로 소진되는 크레딧을 확인할 수 있습니다.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-text">
+              프롬프트 왼편 <strong>③ [시작] ↔ [종료]</strong>에 각각 영상의 첫 장면과 끝 장면에 반영될 이미지를 업로드 및 선택한 후 <strong>'프롬프트'</strong>를 입력합니다.
+            </div>
+          </div>
+        </div>
+
+        <div class="img-wrap">
+          <img src="images04b_video_frame_prompt.png" alt="[시작]·[종료] 프레임 설정 및 프롬프트 입력 화면">
+          <div class="img-caption">프롬프트 왼편 [시작] · [종료]에 각각 이미지 업로드 → 프롬프트 입력</div>
+        </div>
+      </section>
+
+      <!-- Section 5 -->
+      <section class="section" id="s6">
+        <h2><span class="section-num">5</span> 생성한 영상/이미지 확인, 수정하기</h2>
+
+        <p>생성한 영상/이미지를 클릭하면 오른편에서 최초 작업 및 수정 기록을 확인할 수 있으며, 변경이 필요한 내용에 대하여 <strong>추가 프롬프트로 수정 요청</strong>할 수 있습니다.</p>
+        <ul>
+          <li>수정 기록 중 마음에 드는 영상/이미지를 선택하여 수정 작업을 반복할 수 있습니다.</li>
+        </ul>
+
+        <div class="img-wrap">
+          <img src="images05a_review.png" alt="생성 결과 확인 - 오른편 수정 기록 패널">
+          <div class="img-caption">생성한 영상/이미지 클릭 → 오른편에서 최초 작업 및 수정 기록 확인</div>
+        </div>
+
+        <div class="img-wrap">
+          <img src="images05b_history.png" alt="수정 기록 목록 화면">
+          <div class="img-caption">수정 기록 중 원하는 결과물 선택 → 추가 프롬프트로 수정 반복 가능</div>
+        </div>
+
+        <div class="callout">
+          영상 수정의 경우, 영상에 대한 <strong>확장 / 삽입 / 삭제</strong> 또는 <strong>카메라 구도 변경</strong> 중 희망사항을 선택하여 수정 작업할 수 있습니다.
+        </div>
+
+        <div class="img-wrap">
+          <img src="images05c_edit_options.png" alt="영상 수정 옵션 - 확장/삽입/삭제/카메라 구도">
+          <div class="img-caption">영상 수정 옵션: 확장 / 삽입 / 삭제 / 카메라 구도 변경 중 선택</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- 사이드바 활성 링크 스크롤 동기화 -->
+  <script>
+    const sections = document.querySelectorAll('.section');
+    const links = document.querySelectorAll('.sidebar-link');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`.sidebar-link[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+  </script>
+
+  <!-- 푸터 -->
+  <footer class="site-footer">
+    <div class="footer-company">데이원컴퍼니 <span style="font-size: 12px; font-weight: 400; color: var(--muted);">국비지원 (패스트캠퍼스)</span></div>
+    <div class="footer-info">
+      대표자 : 신해동, 김동혁 &nbsp;|&nbsp; 사업자 등록번호 : 810-86-00658 &nbsp;|&nbsp; 주소 : 서울특별시 강남구 테헤란로 231, 센터필드 WEST 6층, 7층<br>
+      고객센터 : 02-518-4831 &nbsp;|&nbsp; <a href="mailto:help.edu@fastcampus.co.kr">help.edu@fastcampus.co.kr</a> &nbsp;|&nbsp; 평일 10:00~18:00 (점심 12:00~13:00, 주말·공휴일 제외)
+    </div>
+    <div class="footer-copy">Copyright ©2026 Day1Company. All rights reserved.</div>
+  </footer>
+
+</body>
+</html>
